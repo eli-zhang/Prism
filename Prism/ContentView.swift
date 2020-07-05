@@ -32,34 +32,29 @@ class ScreenConfiguration {
         return UIColor(red: red, green: green, blue: blue, alpha: 1)
     }
     
-    static func getTriangleOrientation(row: Int, col: Int, rowLength: Int) -> Orientation {
+    static func getTriangleOrientation(row: Int, col: Int) -> Orientation {
         return col.isEven ? .up : .down
     }
     
-    static func getBorderingCoords(row: Int, col: Int, rowLength: Int, filterOtherSide: Bool = false) -> [(Int, Int)] {
-        let orientation = getTriangleOrientation(row: row, col: col, rowLength: rowLength)
+    static func getStartingCoords() -> (Int, Int) {
+        var startingRow: Int = self.verticalTriangleCount / 2
+        if startingRow % 2 != 0 {
+            startingRow += 1
+        }
+        
+        let trianglesInStartingRow: Int = 5 + (startingRow.isEven ? 2 : 0)
+        let startingCol: Int = trianglesInStartingRow / 2
+        return (startingRow, startingCol)
+    }
+    
+    static func getBorderingCoords(row: Int, col: Int) -> [(Int, Int)] {
+        let orientation = getTriangleOrientation(row: row, col: col)
         
         switch orientation {
         case .up:
-            if filterOtherSide && row < rowLength / 2 { // To the left
-                return [(row, col - 1), (row + 1, col + (row.isEven ? -1 : 1))]
-            }
-            else if filterOtherSide && row > rowLength / 2 { // To the right
-                return [(row, col + 1), (row + 1, col + (row.isEven ? -1 : 1))]
-            }
-            else { // In the middle
-                return [(row, col - 1), (row, col + 1), (row + 1, col + (row.isEven ? -1 : 1))]
-            }
+            return [(row, col - 1), (row, col + 1), (row + 1, col + (row.isEven ? -1 : 1))]
         case .down:
-            if filterOtherSide && row < rowLength / 2 { // To the left
-                return [(row, col - 1), (row - 1, col + (row.isEven ? -1 : 1))]
-            }
-            else if filterOtherSide && row > rowLength / 2 { // To the right
-                return [(row, col + 1), (row - 1, col + (row.isEven ? -1 : 1))]
-            }
-            else { // In the middle
-                return [(row, col - 1), (row, col + 1), (row - 1, col + (row.isEven ? -1 : 1))]
-            }
+            return [(row, col - 1), (row, col + 1), (row - 1, col + (row.isEven ? -1 : 1))]
         }
     }
     
@@ -80,22 +75,18 @@ class ScreenConfiguration {
             rows.append(Array(repeating: .clear, count: trianglesPerRow))
         }
         
-        var startingRow: Int = self.verticalTriangleCount / 2
-        if startingRow % 2 != 0 {
-            startingRow += 1
-        }
-        
         let randomColor = generateColor()
+        let (startingRow, startingCol): (Int, Int) = getStartingCoords()
         
-        rows[startingRow][rows[startingRow].count / 2] = randomColor
-        rows[startingRow][rows[startingRow].count / 2 - 1] = randomColor.modifyColor(colorChange: .blue)
-        rows[startingRow][rows[startingRow].count / 2 + 1] = randomColor.modifyColor(colorChange: .green)
-        rows[startingRow - 1][rows[startingRow - 1].count / 2] = randomColor.modifyColor(colorChange: .red)
+        rows[startingRow][startingCol] = randomColor
+        rows[startingRow][startingCol - 1] = randomColor.modifyColor(colorChange: .red)
+        rows[startingRow][startingCol + 1] = randomColor.modifyColor(colorChange: .blue)
+        rows[startingRow - 1][rows[startingRow - 1].count / 2] = randomColor.modifyColor(colorChange: .green)
         
         var toVisit: [(Int, Int)] = []
-        let baseColors = [(startingRow, rows[startingRow].count / 2 + 1), (startingRow, rows[startingRow].count / 2 - 1), (startingRow - 1, rows[startingRow - 1].count / 2)]
+        let baseColors = [(startingRow, startingCol + 1), (startingRow, startingCol - 1), (startingRow - 1, rows[startingRow - 1].count / 2)]
         for startingCoord in baseColors {
-            toVisit += getBorderingCoords(row: startingCoord.0, col: startingCoord.1, rowLength: rows[startingCoord.0].count)
+            toVisit += getBorderingCoords(row: startingCoord.0, col: startingCoord.1)
         }
 
         while !toVisit.isEmpty {
@@ -104,7 +95,7 @@ class ScreenConfiguration {
             let currCol = currentCoords.1
             if validateCoords(coords: currentCoords) {   // Spot exists
                 if rows[currRow][currCol] == .clear {    // Make sure color hasn't been visited
-                    let borderingTriangles = getBorderingCoords(row: currRow, col: currCol, rowLength: rows[currRow].count)
+                    let borderingTriangles = getBorderingCoords(row: currRow, col: currCol)
                     var currColor: UIColor = .clear
                     for coord in borderingTriangles {
                         if validateCoords(coords: coord) {
@@ -123,27 +114,72 @@ class ScreenConfiguration {
 }
 
 struct ContentView: View {
-    
-    var screenConfigurator = ScreenConfiguration()
+    var startingCoords: (Int, Int) = ScreenConfiguration.getStartingCoords()
+    var coreColorCoords: [(Int, Int)] = ScreenConfiguration.getBorderingCoords(
+        row: ScreenConfiguration.getStartingCoords().0,
+        col: ScreenConfiguration.getStartingCoords().1)
+    var dragMultiplier: CGFloat = 0.4
+    @State private var redGuess: CGFloat = 255 / 2
+    @State private var greenGuess: CGFloat = 255 / 2
+    @State private var blueGuess: CGFloat = 255 / 2
+    @State private var redChange: CGFloat = 0
+    @State private var greenChange: CGFloat = 0
+    @State private var blueChange: CGFloat = 0
     @State private var colorArray: [[UIColor]] = ScreenConfiguration.populateColorArray()
+    
+    func getHexString() -> String {
+        return String(format:"%02X", Int(redGuess + dragMultiplier * redChange)) + String(format:"%02X", Int(greenGuess + dragMultiplier * greenChange)) + String(format:"%02X", Int(blueGuess + dragMultiplier * blueChange))
+    }
   
     var body: some View {
-        VStack(spacing: 5) {
-            ForEach((0..<ScreenConfiguration.verticalTriangleCount), id: \.self) { row in
-                HStack(spacing: -(ScreenConfiguration.triangleWidth / 2) + 5) {
-                    ForEach((0...(4 + (row.isEven ? 2 : 0))), id: \.self) { col in
-                        Triangle()
-                        .fill(Color(self.colorArray[row][col])).frame(
-                            width: ScreenConfiguration.triangleWidth,
-                            height: ScreenConfiguration
-                            .triangleWidth)
-                        .rotationEffect(col.isEven ? .degrees(0) : .degrees(180))
-                        .onTapGesture {
-                            self.colorArray = ScreenConfiguration.populateColorArray()
+        ZStack() {
+            VStack(spacing: 5) {
+                ForEach((0..<ScreenConfiguration.verticalTriangleCount), id: \.self) { row in
+                    HStack(spacing: -(ScreenConfiguration.triangleWidth / 2) + 5) {
+                        ForEach((0...(4 + (row.isEven ? 2 : 0))), id: \.self) { col in
+                            Triangle()
+                            .fill(Color(self.colorArray[row][col])).frame(
+                                width: ScreenConfiguration.triangleWidth,
+                                height: ScreenConfiguration
+                                .triangleWidth)
+                            .rotationEffect(col.isEven ? .degrees(0) : .degrees(180))
+                            .onTapGesture {
+                                if row == self.startingCoords.0 && col == self.startingCoords.1 {
+                                    self.colorArray = ScreenConfiguration.populateColorArray()
+                                }
+                            }
+                            .gesture(DragGesture().onChanged({ (value) in
+                                if row == self.startingCoords.0 {
+                                    if col == self.startingCoords.1 - 1 {
+                                        // Red
+                                        self.redChange = self.dragMultiplier * -value.translation.height
+                                    }
+                                    else if col == self.startingCoords.1 + 1 {
+                                        
+                                        // Blue
+                                        self.blueChange = self.dragMultiplier * -value.translation.height
+                                    }
+                                }
+                                else if row == self.startingCoords.0 - 1 && col == (self.colorArray[self.startingCoords.0 - 1].count / 2) {
+                                    // Green
+                                    self.greenChange = self.dragMultiplier * -value.translation.height
+                                }
+                            }).onEnded({ _ in
+                                self.redGuess = max(0, min(255, self.redGuess + self.redChange))
+                                self.redChange = 0
+                                self.blueGuess = max(0, min(255, self.blueGuess + self.blueChange))
+                                self.blueChange = 0
+                                self.greenGuess = max(0, min(255, self.greenGuess + self.greenChange))
+                                self.greenChange = 0
+                            }))
                         }
                     }
                 }
             }
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(Color.white)
+                .frame(width: 100, height: 50, alignment: .bottom)
+            Text(getHexString())
         }
     }
 }
@@ -173,6 +209,11 @@ extension UIColor {
         func converge(_ value: CGFloat) -> CGFloat {   // Moves closer to 1
             return (1 - value) * 0.8 + value
         }
+        
+        func convergeSlightly(_ value: CGFloat) -> CGFloat {   // Moves closer to 1
+            return (1 - value) * 0.9 + value
+        }
+        
         var redValue = self.redValue
         var greenValue = self.greenValue
         var blueValue = self.blueValue
@@ -182,9 +223,9 @@ extension UIColor {
             greenValue = diverge(greenValue)
             blueValue = diverge(blueValue)
         case .green:
-            redValue = diverge(redValue)
+//            redValue = diverge(redValue)
             greenValue = converge(greenValue)
-            blueValue = diverge(blueValue)
+//            blueValue = diverge(blueValue)
         case .blue:
             redValue = diverge(redValue)
             greenValue = diverge(greenValue)
