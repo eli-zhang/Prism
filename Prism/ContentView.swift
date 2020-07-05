@@ -19,26 +19,24 @@ struct Triangle: Shape {
     }
 }
 
-struct ScreenConfiguration {
-    var triangleWidth: CGFloat
-    var verticalTriangleCount: Int
-    init() {
-        triangleWidth = UIScreen.screenWidth / 2 - 10
-        verticalTriangleCount = Int(ceil(UIScreen.screenHeight / triangleWidth))
-    }
+class ScreenConfiguration {
+    static var triangleWidth: CGFloat = UIScreen.screenWidth / 2 - 10
+    static var verticalTriangleCount: Int = {
+        return Int(ceil(UIScreen.screenHeight / triangleWidth))
+    }()
     
-    func generateColor() -> UIColor {
+    static func generateColor() -> UIColor {
         let red = CGFloat.random(in: 0...1)
         let green = CGFloat.random(in: 0...1)
         let blue = CGFloat.random(in: 0...1)
         return UIColor(red: red, green: green, blue: blue, alpha: 1)
     }
     
-    func getTriangleOrientation(row: Int, col: Int, rowLength: Int) -> Orientation {
+    static func getTriangleOrientation(row: Int, col: Int, rowLength: Int) -> Orientation {
         return col.isEven ? .up : .down
     }
     
-    func getBorderingCoords(row: Int, col: Int, rowLength: Int, filterOtherSide: Bool = false) -> [(Int, Int)] {
+    static func getBorderingCoords(row: Int, col: Int, rowLength: Int, filterOtherSide: Bool = false) -> [(Int, Int)] {
         let orientation = getTriangleOrientation(row: row, col: col, rowLength: rowLength)
         
         switch orientation {
@@ -70,7 +68,7 @@ struct ScreenConfiguration {
         case down
     }
     
-    func populateColorArray() -> [[UIColor]] {
+    static func populateColorArray() -> [[UIColor]] {
         func validateCoords(coords: (Int, Int)) -> Bool {
             return coords.0 < rows.count && coords.0 >= 0
             && coords.1 < rows[coords.0].count && coords.1 >= 0
@@ -127,23 +125,22 @@ struct ScreenConfiguration {
 struct ContentView: View {
     
     var screenConfigurator = ScreenConfiguration()
-    let colorArray: [[UIColor]]
-    
-    init() {
-        colorArray = screenConfigurator.populateColorArray()
-    }
+    @State private var colorArray: [[UIColor]] = ScreenConfiguration.populateColorArray()
   
     var body: some View {
         VStack(spacing: 5) {
-            ForEach((0..<self.screenConfigurator.verticalTriangleCount), id: \.self) { row in
-                HStack(spacing: -(self.screenConfigurator.triangleWidth / 2) + 5) {
+            ForEach((0..<ScreenConfiguration.verticalTriangleCount), id: \.self) { row in
+                HStack(spacing: -(ScreenConfiguration.triangleWidth / 2) + 5) {
                     ForEach((0...(4 + (row.isEven ? 2 : 0))), id: \.self) { col in
                         Triangle()
-                            .fill(Color(self.colorArray[row][col])).frame(
-                                width: self.screenConfigurator.triangleWidth,
-                                height: self.screenConfigurator
-                                .triangleWidth)
-                            .rotationEffect(col.isEven ? .degrees(0) : .degrees(180))
+                        .fill(Color(self.colorArray[row][col])).frame(
+                            width: ScreenConfiguration.triangleWidth,
+                            height: ScreenConfiguration
+                            .triangleWidth)
+                        .rotationEffect(col.isEven ? .degrees(0) : .degrees(180))
+                        .onTapGesture {
+                            self.colorArray = ScreenConfiguration.populateColorArray()
+                        }
                     }
                 }
             }
