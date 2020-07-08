@@ -63,7 +63,12 @@ class ScreenConfiguration {
         case down
     }
     
-    static func populateColorArray() -> [[UIColor]] {
+    static func populateColorArray() -> ([[UIColor]], UIColor) {
+        let randomColor = generateColor()
+        return populateColorArrayWithStartingColor(startingColor: randomColor)
+    }
+    
+    static func populateColorArrayWithStartingColor(startingColor: UIColor) -> ([[UIColor]], UIColor) {
         func validateCoords(coords: (Int, Int)) -> Bool {
             return coords.0 < rows.count && coords.0 >= 0
             && coords.1 < rows[coords.0].count && coords.1 >= 0
@@ -75,13 +80,12 @@ class ScreenConfiguration {
             rows.append(Array(repeating: .clear, count: trianglesPerRow))
         }
         
-        let randomColor = generateColor()
         let (startingRow, startingCol): (Int, Int) = getStartingCoords()
         
-        rows[startingRow][startingCol] = randomColor
-        rows[startingRow][startingCol - 1] = randomColor.modifyColor(colorChange: .red)
-        rows[startingRow][startingCol + 1] = randomColor.modifyColor(colorChange: .blue)
-        rows[startingRow - 1][rows[startingRow - 1].count / 2] = randomColor.modifyColor(colorChange: .green)
+        rows[startingRow][startingCol] = startingColor
+        rows[startingRow][startingCol - 1] = startingColor.modifyColor(colorChange: .red)
+        rows[startingRow][startingCol + 1] = startingColor.modifyColor(colorChange: .blue)
+        rows[startingRow - 1][rows[startingRow - 1].count / 2] = startingColor.modifyColor(colorChange: .green)
         
         var toVisit: [(Int, Int)] = []
         let baseColors = [(startingRow, startingCol + 1), (startingRow, startingCol - 1), (startingRow - 1, rows[startingRow - 1].count / 2)]
@@ -108,7 +112,7 @@ class ScreenConfiguration {
             }
         }
         
-        return rows
+        return (rows, startingColor)
     }
     
 }
@@ -119,16 +123,20 @@ struct ContentView: View {
         row: ScreenConfiguration.getStartingCoords().0,
         col: ScreenConfiguration.getStartingCoords().1)
     var dragMultiplier: CGFloat = 0.4
-    @State private var redGuess: CGFloat = 255 / 2
-    @State private var greenGuess: CGFloat = 255 / 2
-    @State private var blueGuess: CGFloat = 255 / 2
+    @State private var redGuess: CGFloat = 255
+    @State private var greenGuess: CGFloat = 255
+    @State private var blueGuess: CGFloat = 255
     @State private var redChange: CGFloat = 0
     @State private var greenChange: CGFloat = 0
     @State private var blueChange: CGFloat = 0
-    @State private var colorArray: [[UIColor]] = ScreenConfiguration.populateColorArray()
+    @State private var colorInfo: ([[UIColor]], UIColor) = ScreenConfiguration.populateColorArray()
+    @State private var oldColor: UIColor = .clear
+    @State private var showGuess: Bool = false
     
     func getHexString() -> String {
-        return String(format:"%02X", Int(redGuess + dragMultiplier * redChange)) + String(format:"%02X", Int(greenGuess + dragMultiplier * greenChange)) + String(format:"%02X", Int(blueGuess + dragMultiplier * blueChange))
+        return String(format:"%02X", Int(max(0, min(255, redGuess + dragMultiplier * redChange))))
+            + String(format:"%02X", Int(max(0, min(255, greenGuess + dragMultiplier * greenChange))))
+            + String(format:"%02X", Int(max(0, min(255, blueGuess + dragMultiplier * blueChange))))
     }
   
     var body: some View {
@@ -138,14 +146,36 @@ struct ContentView: View {
                     HStack(spacing: -(ScreenConfiguration.triangleWidth / 2) + 5) {
                         ForEach((0...(4 + (row.isEven ? 2 : 0))), id: \.self) { col in
                             Triangle()
-                            .fill(Color(self.colorArray[row][col])).frame(
+                                .fill(Color(self.colorInfo.0[row][col])).frame(
                                 width: ScreenConfiguration.triangleWidth,
                                 height: ScreenConfiguration
                                 .triangleWidth)
                             .rotationEffect(col.isEven ? .degrees(0) : .degrees(180))
                             .onTapGesture {
                                 if row == self.startingCoords.0 && col == self.startingCoords.1 {
-                                    self.colorArray = ScreenConfiguration.populateColorArray()
+                                    if !self.showGuess {
+                                        self.showGuess = true
+                                        self.oldColor = self.colorInfo.1
+                                        self.colorInfo = ScreenConfiguration.populateColorArrayWithStartingColor(startingColor:
+                                            UIColor(
+                                                red: CGFloat(max(0, min(255, self.redGuess + self.dragMultiplier * self.redChange))) / 255,
+                                                green: CGFloat(max(0, min(255, self.greenGuess + self.dragMultiplier * self.greenChange))) / 255,
+                                                blue: CGFloat(max(0, min(255, self.blueGuess + self.dragMultiplier * self.blueChange))) / 255, alpha: 1))
+                                    }
+                                    else {
+                                        self.colorInfo = ScreenConfiguration.populateColorArray()
+                                        self.showGuess = false
+                                        self.redGuess = 255
+                                        self.greenGuess = 255
+                                        self.blueGuess = 255
+                                    }
+                                }
+                                else {
+                                    self.colorInfo = ScreenConfiguration.populateColorArray()
+                                    self.showGuess = false
+                                    self.redGuess = 255
+                                    self.greenGuess = 255
+                                    self.blueGuess = 255
                                 }
                             }
                             .gesture(DragGesture().onChanged({ (value) in
@@ -155,12 +185,11 @@ struct ContentView: View {
                                         self.redChange = self.dragMultiplier * -value.translation.height
                                     }
                                     else if col == self.startingCoords.1 + 1 {
-                                        
                                         // Blue
                                         self.blueChange = self.dragMultiplier * -value.translation.height
                                     }
                                 }
-                                else if row == self.startingCoords.0 - 1 && col == (self.colorArray[self.startingCoords.0 - 1].count / 2) {
+                                else if row == self.startingCoords.0 - 1 && col == (self.colorInfo.0[self.startingCoords.0 - 1].count / 2) {
                                     // Green
                                     self.greenChange = self.dragMultiplier * -value.translation.height
                                 }
@@ -177,9 +206,10 @@ struct ContentView: View {
                 }
             }
             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(Color.white)
+                .fill(showGuess ?
+                    Color(oldColor) : Color.white)
                 .frame(width: 100, height: 50, alignment: .bottom)
-            Text(getHexString())
+            Text(showGuess ? "" : getHexString())
         }
     }
 }
