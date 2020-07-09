@@ -132,11 +132,30 @@ struct ContentView: View {
     @State private var colorInfo: ([[UIColor]], UIColor) = ScreenConfiguration.populateColorArray()
     @State private var oldColor: UIColor = .clear
     @State private var showGuess: Bool = false
+    @State private var accuracy: CGFloat = 0
+    
+    func getGuessAfterChange() -> (Int, Int, Int) {
+        return (
+            Int(max(0, min(255, redGuess + dragMultiplier * redChange))),
+            Int(max(0, min(255, greenGuess + dragMultiplier * greenChange))),
+            Int(max(0, min(255, blueGuess + dragMultiplier * blueChange))))
+    }
     
     func getHexString() -> String {
-        return String(format:"%02X", Int(max(0, min(255, redGuess + dragMultiplier * redChange))))
-            + String(format:"%02X", Int(max(0, min(255, greenGuess + dragMultiplier * greenChange))))
-            + String(format:"%02X", Int(max(0, min(255, blueGuess + dragMultiplier * blueChange))))
+        let guessValue = getGuessAfterChange()
+        return String(format:"%02X", guessValue.0)
+        + String(format:"%02X", guessValue.1)
+        + String(format:"%02X", guessValue.2)
+    }
+    
+    func getAccuracy() -> CGFloat {
+        let guessValue = getGuessAfterChange()
+
+        let redDifference = abs(CGFloat(guessValue.0) / 255.0 - oldColor.redValue)
+        let greenDifference = abs(CGFloat(guessValue.1) / 255.0 - oldColor.greenValue)
+        let blueDifference = abs(CGFloat(guessValue.2) / 255.0 - oldColor.blueValue)
+        
+        return (1 - redDifference) * (1 - greenDifference) * (1 - blueDifference)
     }
   
     var body: some View {
@@ -149,18 +168,19 @@ struct ContentView: View {
                                 .fill(Color(self.colorInfo.0[row][col])).frame(
                                 width: ScreenConfiguration.triangleWidth,
                                 height: ScreenConfiguration
-                                .triangleWidth)
+                                    .triangleWidth).animation(.easeInOut)
                             .rotationEffect(col.isEven ? .degrees(0) : .degrees(180))
                             .onTapGesture {
                                 if row == self.startingCoords.0 && col == self.startingCoords.1 {
                                     if !self.showGuess {
                                         self.showGuess = true
                                         self.oldColor = self.colorInfo.1
-                                        self.colorInfo = ScreenConfiguration.populateColorArrayWithStartingColor(startingColor:
-                                            UIColor(
-                                                red: CGFloat(max(0, min(255, self.redGuess + self.dragMultiplier * self.redChange))) / 255,
-                                                green: CGFloat(max(0, min(255, self.greenGuess + self.dragMultiplier * self.greenChange))) / 255,
-                                                blue: CGFloat(max(0, min(255, self.blueGuess + self.dragMultiplier * self.blueChange))) / 255, alpha: 1))
+//                                        self.colorInfo = ScreenConfiguration.populateColorArrayWithStartingColor(startingColor:
+//                                            UIColor(
+//                                                red: CGFloat(self.getGuessAfterChange().0) / 255.0,
+//                                                green: CGFloat(self.getGuessAfterChange().1) / 255.0,
+//                                                blue: CGFloat(self.getGuessAfterChange().2) / 255.0, alpha: 1))
+                                        self.accuracy = self.getAccuracy()
                                     }
                                     else {
                                         self.colorInfo = ScreenConfiguration.populateColorArray()
@@ -170,7 +190,11 @@ struct ContentView: View {
                                         self.blueGuess = 255
                                     }
                                 }
-                                else {
+                                else if !((row == self.startingCoords.0 &&
+                                     (col == self.startingCoords.1 - 1 ||
+                                    col == self.startingCoords.1 + 1))
+                                    || (row == self.startingCoords.0 - 1 && col == (self.colorInfo.0[self.startingCoords.0 - 1].count / 2)))
+                                {
                                     self.colorInfo = ScreenConfiguration.populateColorArray()
                                     self.showGuess = false
                                     self.redGuess = 255
@@ -207,10 +231,27 @@ struct ContentView: View {
             }
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(showGuess ?
-                    Color(oldColor) : Color.white)
+                    Color(UIColor(
+                    red: CGFloat(self.getGuessAfterChange().0) / 255.0,
+                    green: CGFloat(self.getGuessAfterChange().1) / 255.0,
+                    blue: CGFloat(self.getGuessAfterChange().2) / 255.0, alpha: 1))
+                    : Color.white).animation(.easeInOut(duration: showGuess ? 1 : 0))
                 .frame(width: 100, height: 50, alignment: .bottom)
             Text(showGuess ? "" : getHexString())
+            VStack(alignment: .center, spacing: 20) {
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 5, style: .continuous)
+                    .fill(Color.white)
+                    .frame(width: UIScreen.screenWidth - 40, height: 7).padding([.top, .leading, .trailing])
+                    RoundedRectangle(cornerRadius: 5, style: .continuous)
+                    .fill(Color.green)
+                    .frame(width: accuracy * (UIScreen.screenWidth - 40), height: 7).padding([.top, .leading, .trailing]).animation(.easeInOut(duration: 1))
+                }.opacity(showGuess ? 1 : 0).animation(.easeInOut)
+                
+                Spacer()
+                }.padding(40)
         }
+        
     }
 }
 
