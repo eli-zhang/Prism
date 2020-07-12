@@ -19,6 +19,25 @@ struct Triangle: Shape {
     }
 }
 
+struct ConfettiAnimationShape : Shape {
+    func path(in rect: CGRect) -> Path {
+        return Path(CGRect(x: 0, y: 0, width: 0, height: 0))
+    }
+}
+
+struct ShowModifier: ViewModifier {
+    let show: Bool
+    func body(content: Content) -> some View {
+        Group {
+            if show {
+                EmptyView()
+            } else {
+                content
+            }
+        }
+    }
+}
+
 class ScreenConfiguration {
     static var triangleWidth: CGFloat = UIScreen.screenWidth / 2 - 10
     static var verticalTriangleCount: Int = {
@@ -133,6 +152,7 @@ struct ContentView: View {
     @State private var oldColor: UIColor = .clear
     @State private var showGuess: Bool = false
     @State private var accuracy: CGFloat = 0
+    @State private var showConfetti: Int = 0
 
     func getGuessAfterChange() -> (Int, Int, Int) {
         return (
@@ -172,10 +192,17 @@ struct ContentView: View {
                             .rotationEffect(col.isEven ? .degrees(0) : .degrees(180))
                             .onTapGesture {
                                 if row == self.startingCoords.0 && col == self.startingCoords.1 {
+                                    // Tapped center, submitting guess or resetting
                                     if !self.showGuess {
                                         self.showGuess = true
                                         self.oldColor = self.colorInfo.1
                                         self.accuracy = self.getAccuracy()
+                                        if self.accuracy > 0.9 {
+                                            self.showConfetti = 1
+                                            Timer.scheduledTimer(withTimeInterval: 2.5, repeats: false) { timer in
+                                                self.showConfetti = 0
+                                            }
+                                        }
                                     }
                                     else {
                                         self.colorInfo = ScreenConfiguration.populateColorArray()
@@ -183,6 +210,7 @@ struct ContentView: View {
                                         self.redGuess = 255
                                         self.greenGuess = 255
                                         self.blueGuess = 255
+                                        self.showConfetti = 0
                                     }
                                 }
                                 else if !((row == self.startingCoords.0 &&
@@ -250,8 +278,9 @@ struct ContentView: View {
 
                 Spacer()
                 }.padding(40)
+            LottieView(name: "Confetti", play: $showConfetti).opacity(Double(showConfetti)).frame(width: UIScreen.screenWidth, height: UIScreen.screenHeight)
+                .contentShape(ConfettiAnimationShape()).show(!showConfetti.boolValue)
         }
-
     }
 }
 
@@ -339,5 +368,13 @@ extension UIColor {
 extension Int {
     var isEven: Bool {
         return self % 2 == 0
+    }
+    var boolValue: Bool { return self != 0 }
+}
+
+
+extension View {
+    func show(_ bool: Bool) -> some View {
+        modifier(ShowModifier(show: bool))
     }
 }

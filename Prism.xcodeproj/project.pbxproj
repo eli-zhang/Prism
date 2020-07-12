@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -13,6 +13,9 @@
 		45B7FD6A24B01127009CFCE4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 45B7FD6924B01127009CFCE4 /* Assets.xcassets */; };
 		45B7FD6D24B01127009CFCE4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 45B7FD6C24B01127009CFCE4 /* Preview Assets.xcassets */; };
 		45B7FD7024B01127009CFCE4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 45B7FD6E24B01127009CFCE4 /* LaunchScreen.storyboard */; };
+		45BA1C9624BACCCB0047F608 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 45BA1C9524BACCCB0047F608 /* Lottie */; };
+		45BA1C9824BACCE30047F608 /* LottieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45BA1C9724BACCE30047F608 /* LottieView.swift */; };
+		45BA1CA024BAD6C90047F608 /* Confetti.json in Resources */ = {isa = PBXBuildFile; fileRef = 45BA1C9F24BAD6C90047F608 /* Confetti.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +27,8 @@
 		45B7FD6C24B01127009CFCE4 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		45B7FD6F24B01127009CFCE4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		45B7FD7124B01127009CFCE4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		45BA1C9724BACCE30047F608 /* LottieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottieView.swift; sourceTree = "<group>"; };
+		45BA1C9F24BAD6C90047F608 /* Confetti.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Confetti.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,6 +36,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				45BA1C9624BACCCB0047F608 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -59,6 +65,8 @@
 				45B7FD6324B0110C009CFCE4 /* AppDelegate.swift */,
 				45B7FD6524B0110C009CFCE4 /* SceneDelegate.swift */,
 				45B7FD6724B0110C009CFCE4 /* ContentView.swift */,
+				45BA1C9724BACCE30047F608 /* LottieView.swift */,
+				45BA1C9F24BAD6C90047F608 /* Confetti.json */,
 				45B7FD6924B01127009CFCE4 /* Assets.xcassets */,
 				45B7FD6E24B01127009CFCE4 /* LaunchScreen.storyboard */,
 				45B7FD7124B01127009CFCE4 /* Info.plist */,
@@ -91,6 +99,9 @@
 			dependencies = (
 			);
 			name = Prism;
+			packageProductDependencies = (
+				45BA1C9524BACCCB0047F608 /* Lottie */,
+			);
 			productName = Prism;
 			productReference = 45B7FD6024B0110C009CFCE4 /* Prism.app */;
 			productType = "com.apple.product-type.application";
@@ -119,6 +130,9 @@
 				Base,
 			);
 			mainGroup = 45B7FD5724B0110C009CFCE4;
+			packageReferences = (
+				45BA1C9424BACCCB0047F608 /* XCRemoteSwiftPackageReference "lottie-ios" */,
+			);
 			productRefGroup = 45B7FD6124B0110C009CFCE4 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -134,6 +148,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				45B7FD7024B01127009CFCE4 /* LaunchScreen.storyboard in Resources */,
+				45BA1CA024BAD6C90047F608 /* Confetti.json in Resources */,
 				45B7FD6D24B01127009CFCE4 /* Preview Assets.xcassets in Resources */,
 				45B7FD6A24B01127009CFCE4 /* Assets.xcassets in Resources */,
 			);
@@ -149,6 +164,7 @@
 				45B7FD6424B0110C009CFCE4 /* AppDelegate.swift in Sources */,
 				45B7FD6624B0110C009CFCE4 /* SceneDelegate.swift in Sources */,
 				45B7FD6824B0110C009CFCE4 /* ContentView.swift in Sources */,
+				45BA1C9824BACCE30047F608 /* LottieView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -285,6 +301,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_ASSET_PATHS = "\"Prism/Preview Content\"";
 				DEVELOPMENT_TEAM = 37AKFHT6H5;
 				ENABLE_PREVIEWS = YES;
@@ -306,6 +323,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_ASSET_PATHS = "\"Prism/Preview Content\"";
 				DEVELOPMENT_TEAM = 37AKFHT6H5;
 				ENABLE_PREVIEWS = YES;
@@ -344,6 +362,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		45BA1C9424BACCCB0047F608 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.1.8;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		45BA1C9524BACCCB0047F608 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45BA1C9424BACCCB0047F608 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 45B7FD5824B0110C009CFCE4 /* Project object */;
 }
