@@ -133,31 +133,31 @@ struct ContentView: View {
     @State private var oldColor: UIColor = .clear
     @State private var showGuess: Bool = false
     @State private var accuracy: CGFloat = 0
-    
+
     func getGuessAfterChange() -> (Int, Int, Int) {
         return (
             Int(max(0, min(255, redGuess + dragMultiplier * redChange))),
             Int(max(0, min(255, greenGuess + dragMultiplier * greenChange))),
             Int(max(0, min(255, blueGuess + dragMultiplier * blueChange))))
     }
-    
+
     func getHexString() -> String {
         let guessValue = getGuessAfterChange()
         return String(format:"%02X", guessValue.0)
         + String(format:"%02X", guessValue.1)
         + String(format:"%02X", guessValue.2)
     }
-    
+
     func getAccuracy() -> CGFloat {
         let guessValue = getGuessAfterChange()
 
         let redDifference = abs(CGFloat(guessValue.0) / 255.0 - oldColor.redValue)
         let greenDifference = abs(CGFloat(guessValue.1) / 255.0 - oldColor.greenValue)
         let blueDifference = abs(CGFloat(guessValue.2) / 255.0 - oldColor.blueValue)
-        
+
         return (1 - redDifference) * (1 - greenDifference) * (1 - blueDifference)
     }
-  
+
     var body: some View {
         ZStack() {
             VStack(spacing: 5) {
@@ -175,11 +175,6 @@ struct ContentView: View {
                                     if !self.showGuess {
                                         self.showGuess = true
                                         self.oldColor = self.colorInfo.1
-//                                        self.colorInfo = ScreenConfiguration.populateColorArrayWithStartingColor(startingColor:
-//                                            UIColor(
-//                                                red: CGFloat(self.getGuessAfterChange().0) / 255.0,
-//                                                green: CGFloat(self.getGuessAfterChange().1) / 255.0,
-//                                                blue: CGFloat(self.getGuessAfterChange().2) / 255.0, alpha: 1))
                                         self.accuracy = self.getAccuracy()
                                     }
                                     else {
@@ -200,6 +195,11 @@ struct ContentView: View {
                                     self.redGuess = 255
                                     self.greenGuess = 255
                                     self.blueGuess = 255
+                                }
+                                else {
+                                    if self.showGuess {
+                                        self.showGuess = false
+                                    }
                                 }
                             }
                             .gesture(DragGesture().onChanged({ (value) in
@@ -247,11 +247,11 @@ struct ContentView: View {
                     .fill(Color.green)
                     .frame(width: accuracy * (UIScreen.screenWidth - 40), height: 7).padding([.top, .leading, .trailing]).animation(.easeInOut(duration: 1))
                 }.opacity(showGuess ? 1 : 0).animation(.easeInOut)
-                
+
                 Spacer()
                 }.padding(40)
         }
-        
+
     }
 }
 
