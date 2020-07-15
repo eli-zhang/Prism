@@ -16,6 +16,10 @@
 		45BA1C9624BACCCB0047F608 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 45BA1C9524BACCCB0047F608 /* Lottie */; };
 		45BA1C9824BACCE30047F608 /* LottieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45BA1C9724BACCE30047F608 /* LottieView.swift */; };
 		45BA1CA024BAD6C90047F608 /* Confetti.json in Resources */ = {isa = PBXBuildFile; fileRef = 45BA1C9F24BAD6C90047F608 /* Confetti.json */; };
+		45BA1CA224BEB4130047F608 /* KeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45BA1CA124BEB4130047F608 /* KeyboardView.swift */; };
+		45BA1CAB24BEBF680047F608 /* Oswald-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 45BA1CA524BEBF670047F608 /* Oswald-Medium.ttf */; };
+		45BA1CAD24BEBF680047F608 /* Oswald-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 45BA1CA724BEBF670047F608 /* Oswald-Regular.ttf */; };
+		45BA1CAF24BEBF680047F608 /* Oswald-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 45BA1CA924BEBF680047F608 /* Oswald-Light.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +33,10 @@
 		45B7FD7124B01127009CFCE4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		45BA1C9724BACCE30047F608 /* LottieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottieView.swift; sourceTree = "<group>"; };
 		45BA1C9F24BAD6C90047F608 /* Confetti.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Confetti.json; sourceTree = "<group>"; };
+		45BA1CA124BEB4130047F608 /* KeyboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardView.swift; sourceTree = "<group>"; };
+		45BA1CA524BEBF670047F608 /* Oswald-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oswald-Medium.ttf"; sourceTree = "<group>"; };
+		45BA1CA724BEBF670047F608 /* Oswald-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oswald-Regular.ttf"; sourceTree = "<group>"; };
+		45BA1CA924BEBF680047F608 /* Oswald-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oswald-Light.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -46,6 +54,7 @@
 		45B7FD5724B0110C009CFCE4 = {
 			isa = PBXGroup;
 			children = (
+				45BA1CA324BEBF580047F608 /* Fonts */,
 				45B7FD6224B0110C009CFCE4 /* Prism */,
 				45B7FD6124B0110C009CFCE4 /* Products */,
 			);
@@ -65,6 +74,7 @@
 				45B7FD6324B0110C009CFCE4 /* AppDelegate.swift */,
 				45B7FD6524B0110C009CFCE4 /* SceneDelegate.swift */,
 				45B7FD6724B0110C009CFCE4 /* ContentView.swift */,
+				45BA1CA124BEB4130047F608 /* KeyboardView.swift */,
 				45BA1C9724BACCE30047F608 /* LottieView.swift */,
 				45BA1C9F24BAD6C90047F608 /* Confetti.json */,
 				45B7FD6924B01127009CFCE4 /* Assets.xcassets */,
@@ -81,6 +91,16 @@
 				45B7FD6C24B01127009CFCE4 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		45BA1CA324BEBF580047F608 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				45BA1CA924BEBF680047F608 /* Oswald-Light.ttf */,
+				45BA1CA524BEBF670047F608 /* Oswald-Medium.ttf */,
+				45BA1CA724BEBF670047F608 /* Oswald-Regular.ttf */,
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -148,9 +168,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				45B7FD7024B01127009CFCE4 /* LaunchScreen.storyboard in Resources */,
+				45BA1CAF24BEBF680047F608 /* Oswald-Light.ttf in Resources */,
 				45BA1CA024BAD6C90047F608 /* Confetti.json in Resources */,
+				45BA1CAB24BEBF680047F608 /* Oswald-Medium.ttf in Resources */,
 				45B7FD6D24B01127009CFCE4 /* Preview Assets.xcassets in Resources */,
 				45B7FD6A24B01127009CFCE4 /* Assets.xcassets in Resources */,
+				45BA1CAD24BEBF680047F608 /* Oswald-Regular.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -164,6 +187,7 @@
 				45B7FD6424B0110C009CFCE4 /* AppDelegate.swift in Sources */,
 				45B7FD6624B0110C009CFCE4 /* SceneDelegate.swift in Sources */,
 				45B7FD6824B0110C009CFCE4 /* ContentView.swift in Sources */,
+				45BA1CA224BEB4130047F608 /* KeyboardView.swift in Sources */,
 				45BA1C9824BACCE30047F608 /* LottieView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

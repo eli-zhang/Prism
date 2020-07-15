@@ -153,6 +153,7 @@ struct ContentView: View {
     @State private var showGuess: Bool = false
     @State private var accuracy: CGFloat = 0
     @State private var showConfetti: Int = 0
+    @State private var showKeyboard: Bool = false
 
     func getGuessAfterChange() -> (Int, Int, Int) {
         return (
@@ -265,7 +266,10 @@ struct ContentView: View {
                     blue: CGFloat(self.getGuessAfterChange().2) / 255.0, alpha: 1))
                     : Color.white).animation(.easeInOut(duration: showGuess ? 1 : 0))
                 .frame(width: 100, height: 50, alignment: .bottom)
-            Text(showGuess ? "" : getHexString())
+                .onTapGesture {
+                    self.showKeyboard = !self.showKeyboard;
+                }
+            Text(showGuess ? "" : getHexString()).font(Font.custom("Oswald-Light", size: 20))
             VStack(alignment: .center, spacing: 20) {
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 5, style: .continuous)
@@ -278,6 +282,9 @@ struct ContentView: View {
 
                 Spacer()
                 }.padding(40)
+            VStack {
+                KeyboardView().opacity(showKeyboard ? 1 : 0).animation(.easeInOut)
+            }.padding(50)
             LottieView(name: "Confetti", play: $showConfetti).opacity(Double(showConfetti)).frame(width: UIScreen.screenWidth, height: UIScreen.screenHeight)
                 .contentShape(ConfettiAnimationShape()).show(!showConfetti.boolValue)
         }
