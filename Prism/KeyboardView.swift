@@ -15,13 +15,13 @@ struct KeyboardView: View {
     var body: some View {
         VStack {
             Spacer()
-            VStack(spacing: 5) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 5, style: .continuous)
-                                                .fill(Color.white)
-                        .frame(width: UIScreen.screenWidth - (5 * 2), height: 50).shadow(radius: 1, x: 1, y: 1)
-                    Text("CLEAR").font(Font.custom("Oswald-Light", size: 20))
-                }
+//            VStack(spacing: 5) {
+//                ZStack {
+//                    RoundedRectangle(cornerRadius: 5, style: .continuous)
+//                                                .fill(Color.white)
+//                        .frame(width: UIScreen.screenWidth - (5 * 2), height: 50).shadow(radius: 1, x: 1, y: 1)
+//                    Text("CLEAR").font(Font.custom("Oswald-Light", size: 20))
+//                }
                 ForEach((0...1), id: \.self) { row in
                     HStack(spacing: 5) {
                         ForEach((0...7), id: \.self) { col in
@@ -36,8 +36,8 @@ struct KeyboardView: View {
                         }
                     }
                 }
-            }
-            
+//            }
+//            
         }
     }
 }

@@ -182,81 +182,82 @@ struct ContentView: View {
     var body: some View {
         ZStack() {
             VStack(spacing: 5) {
-                ForEach((0..<ScreenConfiguration.verticalTriangleCount), id: \.self) { row in
-                    HStack(spacing: -(ScreenConfiguration.triangleWidth / 2) + 5) {
-                        ForEach((0...(4 + (row.isEven ? 2 : 0))), id: \.self) { col in
-                            Triangle()
-                                .fill(Color(self.colorInfo.0[row][col])).frame(
-                                width: ScreenConfiguration.triangleWidth,
-                                height: ScreenConfiguration
-                                    .triangleWidth).animation(.easeInOut)
-                            .rotationEffect(col.isEven ? .degrees(0) : .degrees(180))
-                            .onTapGesture {
-                                if row == self.startingCoords.0 && col == self.startingCoords.1 {
-                                    // Tapped center, submitting guess or resetting
-                                    if !self.showGuess {
-                                        self.showGuess = true
-                                        self.oldColor = self.colorInfo.1
-                                        self.accuracy = self.getAccuracy()
-                                        if self.accuracy > 0.9 {
-                                            self.showConfetti = 1
-                                            Timer.scheduledTimer(withTimeInterval: 2.5, repeats: false) { timer in
-                                                self.showConfetti = 0
-                                            }
-                                        }
-                                    }
-                                    else {
-                                        self.colorInfo = ScreenConfiguration.populateColorArray()
-                                        self.showGuess = false
-                                        self.redGuess = 255
-                                        self.greenGuess = 255
-                                        self.blueGuess = 255
-                                        self.showConfetti = 0
-                                    }
-                                }
-                                else if !((row == self.startingCoords.0 &&
-                                     (col == self.startingCoords.1 - 1 ||
-                                    col == self.startingCoords.1 + 1))
-                                    || (row == self.startingCoords.0 - 1 && col == (self.colorInfo.0[self.startingCoords.0 - 1].count / 2)))
-                                {
-                                    self.colorInfo = ScreenConfiguration.populateColorArray()
-                                    self.showGuess = false
-                                    self.redGuess = 255
-                                    self.greenGuess = 255
-                                    self.blueGuess = 255
-                                }
-                                else {
-                                    if self.showGuess {
-                                        self.showGuess = false
-                                    }
-                                }
-                            }
-                            .gesture(DragGesture().onChanged({ (value) in
-                                if row == self.startingCoords.0 {
-                                    if col == self.startingCoords.1 - 1 {
-                                        // Red
-                                        self.redChange = self.dragMultiplier * -value.translation.height
-                                    }
-                                    else if col == self.startingCoords.1 + 1 {
-                                        // Blue
-                                        self.blueChange = self.dragMultiplier * -value.translation.height
-                                    }
-                                }
-                                else if row == self.startingCoords.0 - 1 && col == (self.colorInfo.0[self.startingCoords.0 - 1].count / 2) {
-                                    // Green
-                                    self.greenChange = self.dragMultiplier * -value.translation.height
-                                }
-                            }).onEnded({ _ in
-                                self.redGuess = max(0, min(255, self.redGuess + self.redChange))
-                                self.redChange = 0
-                                self.blueGuess = max(0, min(255, self.blueGuess + self.blueChange))
-                                self.blueChange = 0
-                                self.greenGuess = max(0, min(255, self.greenGuess + self.greenChange))
-                                self.greenChange = 0
-                            }))
-                        }
-                    }
-                }
+                Text("yo")
+//                ForEach((0..<ScreenConfiguration.verticalTriangleCount), id: \.self) { row in
+//                    HStack(spacing: -(ScreenConfiguration.triangleWidth / 2) + 5) {
+//                        ForEach((0...(4 + (row.isEven ? 2 : 0))), id: \.self) { col in
+//                            Triangle()
+//                                .fill(Color(self.colorInfo.0[row][col])).frame(
+//                                width: ScreenConfiguration.triangleWidth,
+//                                height: ScreenConfiguration
+//                                    .triangleWidth).animation(.easeInOut)
+//                            .rotationEffect(col.isEven ? .degrees(0) : .degrees(180))
+//                            .onTapGesture {
+//                                if row == self.startingCoords.0 && col == self.startingCoords.1 {
+//                                    // Tapped center, submitting guess or resetting
+//                                    if !self.showGuess {
+//                                        self.showGuess = true
+//                                        self.oldColor = self.colorInfo.1
+//                                        self.accuracy = self.getAccuracy()
+//                                        if self.accuracy > 0.9 {
+//                                            self.showConfetti = 1
+//                                            Timer.scheduledTimer(withTimeInterval: 2.5, repeats: false) { timer in
+//                                                self.showConfetti = 0
+//                                            }
+//                                        }
+//                                    }
+//                                    else {
+//                                        self.colorInfo = ScreenConfiguration.populateColorArray()
+//                                        self.showGuess = false
+//                                        self.redGuess = 255
+//                                        self.greenGuess = 255
+//                                        self.blueGuess = 255
+//                                        self.showConfetti = 0
+//                                    }
+//                                }
+//                                else if !((row == self.startingCoords.0 &&
+//                                     (col == self.startingCoords.1 - 1 ||
+//                                    col == self.startingCoords.1 + 1))
+//                                    || (row == self.startingCoords.0 - 1 && col == (self.colorInfo.0[self.startingCoords.0 - 1].count / 2)))
+//                                {
+//                                    self.colorInfo = ScreenConfiguration.populateColorArray()
+//                                    self.showGuess = false
+//                                    self.redGuess = 255
+//                                    self.greenGuess = 255
+//                                    self.blueGuess = 255
+//                                }
+//                                else {
+//                                    if self.showGuess {
+//                                        self.showGuess = false
+//                                    }
+//                                }
+//                            }
+//                            .gesture(DragGesture().onChanged({ (value) in
+//                                if row == self.startingCoords.0 {
+//                                    if col == self.startingCoords.1 - 1 {
+//                                        // Red
+//                                        self.redChange = self.dragMultiplier * -value.translation.height
+//                                    }
+//                                    else if col == self.startingCoords.1 + 1 {
+//                                        // Blue
+//                                        self.blueChange = self.dragMultiplier * -value.translation.height
+//                                    }
+//                                }
+//                                else if row == self.startingCoords.0 - 1 && col == (self.colorInfo.0[self.startingCoords.0 - 1].count / 2) {
+//                                    // Green
+//                                    self.greenChange = self.dragMultiplier * -value.translation.height
+//                                }
+//                            }).onEnded({ _ in
+//                                self.redGuess = max(0, min(255, self.redGuess + self.redChange))
+//                                self.redChange = 0
+//                                self.blueGuess = max(0, min(255, self.blueGuess + self.blueChange))
+//                                self.blueChange = 0
+//                                self.greenGuess = max(0, min(255, self.greenGuess + self.greenChange))
+//                                self.greenChange = 0
+//                            }))
+//                        }
+//                    }
+//                }
             }
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(showGuess ?
@@ -283,8 +284,9 @@ struct ContentView: View {
                 Spacer()
                 }.padding(40)
             VStack {
-                KeyboardView().opacity(showKeyboard ? 1 : 0).animation(.easeInOut)
-            }.padding(50)
+                KeyboardView()
+//                    .opacity(showKeyboard ? 1 : 0).animation(.easeInOut)
+            }
             LottieView(name: "Confetti", play: $showConfetti).opacity(Double(showConfetti)).frame(width: UIScreen.screenWidth, height: UIScreen.screenHeight)
                 .contentShape(ConfettiAnimationShape()).show(!showConfetti.boolValue)
         }
