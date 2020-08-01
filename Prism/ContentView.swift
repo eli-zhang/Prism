@@ -154,6 +154,7 @@ struct ContentView: View {
     @State private var accuracy: CGFloat = 0
     @State private var showConfetti: Int = 0
     @State private var showKeyboard: Bool = false
+    @EnvironmentObject var keyboardEntry: KeyboardEntry
 
     func getGuessAfterChange() -> (Int, Int, Int) {
         return (
@@ -163,10 +164,13 @@ struct ContentView: View {
     }
 
     func getHexString() -> String {
-        let guessValue = getGuessAfterChange()
-        return String(format:"%02X", guessValue.0)
-        + String(format:"%02X", guessValue.1)
-        + String(format:"%02X", guessValue.2)
+        if !showKeyboard {
+            let guessValue = getGuessAfterChange()
+            return String(format:"%02X", guessValue.0)
+            + String(format:"%02X", guessValue.1)
+            + String(format:"%02X", guessValue.2)
+        }
+        return keyboardEntry.currentText
     }
 
     func getAccuracy() -> CGFloat {
@@ -180,120 +184,124 @@ struct ContentView: View {
     }
 
     var body: some View {
-        ZStack() {
-            VStack(spacing: 5) {
-                Text("yo")
-//                ForEach((0..<ScreenConfiguration.verticalTriangleCount), id: \.self) { row in
-//                    HStack(spacing: -(ScreenConfiguration.triangleWidth / 2) + 5) {
-//                        ForEach((0...(4 + (row.isEven ? 2 : 0))), id: \.self) { col in
-//                            Triangle()
-//                                .fill(Color(self.colorInfo.0[row][col])).frame(
-//                                width: ScreenConfiguration.triangleWidth,
-//                                height: ScreenConfiguration
-//                                    .triangleWidth).animation(.easeInOut)
-//                            .rotationEffect(col.isEven ? .degrees(0) : .degrees(180))
-//                            .onTapGesture {
-//                                if row == self.startingCoords.0 && col == self.startingCoords.1 {
-//                                    // Tapped center, submitting guess or resetting
-//                                    if !self.showGuess {
-//                                        self.showGuess = true
-//                                        self.oldColor = self.colorInfo.1
-//                                        self.accuracy = self.getAccuracy()
-//                                        if self.accuracy > 0.9 {
-//                                            self.showConfetti = 1
-//                                            Timer.scheduledTimer(withTimeInterval: 2.5, repeats: false) { timer in
-//                                                self.showConfetti = 0
-//                                            }
-//                                        }
-//                                    }
-//                                    else {
-//                                        self.colorInfo = ScreenConfiguration.populateColorArray()
-//                                        self.showGuess = false
-//                                        self.redGuess = 255
-//                                        self.greenGuess = 255
-//                                        self.blueGuess = 255
-//                                        self.showConfetti = 0
-//                                    }
-//                                }
-//                                else if !((row == self.startingCoords.0 &&
-//                                     (col == self.startingCoords.1 - 1 ||
-//                                    col == self.startingCoords.1 + 1))
-//                                    || (row == self.startingCoords.0 - 1 && col == (self.colorInfo.0[self.startingCoords.0 - 1].count / 2)))
-//                                {
-//                                    self.colorInfo = ScreenConfiguration.populateColorArray()
-//                                    self.showGuess = false
-//                                    self.redGuess = 255
-//                                    self.greenGuess = 255
-//                                    self.blueGuess = 255
-//                                }
-//                                else {
-//                                    if self.showGuess {
-//                                        self.showGuess = false
-//                                    }
-//                                }
-//                            }
-//                            .gesture(DragGesture().onChanged({ (value) in
-//                                if row == self.startingCoords.0 {
-//                                    if col == self.startingCoords.1 - 1 {
-//                                        // Red
-//                                        self.redChange = self.dragMultiplier * -value.translation.height
-//                                    }
-//                                    else if col == self.startingCoords.1 + 1 {
-//                                        // Blue
-//                                        self.blueChange = self.dragMultiplier * -value.translation.height
-//                                    }
-//                                }
-//                                else if row == self.startingCoords.0 - 1 && col == (self.colorInfo.0[self.startingCoords.0 - 1].count / 2) {
-//                                    // Green
-//                                    self.greenChange = self.dragMultiplier * -value.translation.height
-//                                }
-//                            }).onEnded({ _ in
-//                                self.redGuess = max(0, min(255, self.redGuess + self.redChange))
-//                                self.redChange = 0
-//                                self.blueGuess = max(0, min(255, self.blueGuess + self.blueChange))
-//                                self.blueChange = 0
-//                                self.greenGuess = max(0, min(255, self.greenGuess + self.greenChange))
-//                                self.greenChange = 0
-//                            }))
-//                        }
-//                    }
-//                }
-            }
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(showGuess ?
-                    Color(UIColor(
-                    red: CGFloat(self.getGuessAfterChange().0) / 255.0,
-                    green: CGFloat(self.getGuessAfterChange().1) / 255.0,
-                    blue: CGFloat(self.getGuessAfterChange().2) / 255.0, alpha: 1))
-                    : Color.white).animation(.easeInOut(duration: showGuess ? 1 : 0))
-                .frame(width: 100, height: 50, alignment: .bottom)
-                .onTapGesture {
-                    self.showKeyboard = !self.showKeyboard;
+        GeometryReader { geometry in
+            ZStack(alignment: .center) {
+                VStack(spacing: 5) {
+                    ForEach((0..<ScreenConfiguration.verticalTriangleCount), id: \.self) { row in
+                        HStack(spacing: -(ScreenConfiguration.triangleWidth / 2) + 5) {
+                            ForEach((0...(4 + (row.isEven ? 2 : 0))), id: \.self) { col in
+                                Triangle()
+                                    .fill(Color(self.colorInfo.0[row][col])).frame(
+                                    width: ScreenConfiguration.triangleWidth,
+                                    height: ScreenConfiguration
+                                        .triangleWidth).animation(.easeInOut)
+                                .rotationEffect(col.isEven ? .degrees(0) : .degrees(180))
+                                .onTapGesture {
+                                    if row == self.startingCoords.0 && col == self.startingCoords.1 {
+                                        // Tapped center, submitting guess or resetting
+                                        if !self.showGuess {
+                                            self.showGuess = true
+                                            self.oldColor = self.colorInfo.1
+                                            self.accuracy = self.getAccuracy()
+                                            if self.accuracy > 0.9 {
+                                                self.showConfetti = 1
+                                                Timer.scheduledTimer(withTimeInterval: 2.5, repeats: false) { timer in
+                                                    self.showConfetti = 0
+                                                }
+                                            }
+                                        }
+                                        else {
+                                            self.colorInfo = ScreenConfiguration.populateColorArray()
+                                            self.showGuess = false
+                                            self.redGuess = 255
+                                            self.greenGuess = 255
+                                            self.blueGuess = 255
+                                            self.showConfetti = 0
+                                        }
+                                    }
+                                    else if !((row == self.startingCoords.0 &&
+                                         (col == self.startingCoords.1 - 1 ||
+                                        col == self.startingCoords.1 + 1))
+                                        || (row == self.startingCoords.0 - 1 && col == (self.colorInfo.0[self.startingCoords.0 - 1].count / 2)))
+                                    {
+                                        self.colorInfo = ScreenConfiguration.populateColorArray()
+                                        self.showGuess = false
+                                        self.redGuess = 255
+                                        self.greenGuess = 255
+                                        self.blueGuess = 255
+                                    }
+                                    else {
+                                        if self.showGuess {
+                                            self.showGuess = false
+                                        }
+                                    }
+                                }
+                                .gesture(DragGesture().onChanged({ (value) in
+                                    if row == self.startingCoords.0 {
+                                        if col == self.startingCoords.1 - 1 {
+                                            // Red
+                                            self.redChange = self.dragMultiplier * -value.translation.height
+                                        }
+                                        else if col == self.startingCoords.1 + 1 {
+                                            // Blue
+                                            self.blueChange = self.dragMultiplier * -value.translation.height
+                                        }
+                                    }
+                                    else if row == self.startingCoords.0 - 1 && col == (self.colorInfo.0[self.startingCoords.0 - 1].count / 2) {
+                                        // Green
+                                        self.greenChange = self.dragMultiplier * -value.translation.height
+                                    }
+                                }).onEnded({ _ in
+                                    self.redGuess = max(0, min(255, self.redGuess + self.redChange))
+                                    self.redChange = 0
+                                    self.blueGuess = max(0, min(255, self.blueGuess + self.blueChange))
+                                    self.blueChange = 0
+                                    self.greenGuess = max(0, min(255, self.greenGuess + self.greenChange))
+                                    self.greenChange = 0
+                                }))
+                            }
+                        }
+                    }
                 }
-            Text(showGuess ? "" : getHexString()).font(Font.custom("Oswald-Light", size: 20))
-            VStack(alignment: .center, spacing: 20) {
-                ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 5, style: .continuous)
-                    .fill(Color.white)
-                    .frame(width: UIScreen.screenWidth - 40, height: 7).padding([.top, .leading, .trailing])
-                    RoundedRectangle(cornerRadius: 5, style: .continuous)
-                    .fill(Color.green)
-                    .frame(width: accuracy * (UIScreen.screenWidth - 40), height: 7).padding([.top, .leading, .trailing]).animation(.easeInOut(duration: 1))
-                }.opacity(showGuess ? 1 : 0).animation(.easeInOut)
+    //            VStack() {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(self.showGuess ?
+                            Color(UIColor(
+                            red: CGFloat(self.getGuessAfterChange().0) / 255.0,
+                            green: CGFloat(self.getGuessAfterChange().1) / 255.0,
+                            blue: CGFloat(self.getGuessAfterChange().2) / 255.0, alpha: 1))
+                            : Color.white).animation(.easeInOut(duration: self.showGuess ? 1 : 0))
+                        .frame(width: 100, height: 50, alignment: .bottom)
+                        .onTapGesture {
+                            self.showKeyboard = !self.showKeyboard;
+                        }
+                
+                KeyboardView().frame(width: UIScreen.screenWidth, height: UIScreen.screenHeight, alignment: .bottom).padding(.bottom, 40 + geometry.safeAreaInsets.bottom)
+                    .opacity(self.showKeyboard ? 1 : 0).animation(.easeInOut)
+                
+                Text(self.showGuess ? "" : self.getHexString()).font(Font.custom("Oswald-Light", size: 20))
+                VStack(alignment: .center, spacing: 20) {
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: 5, style: .continuous)
+                        .fill(Color.white)
+                        .frame(width: UIScreen.screenWidth - 40, height: 7).padding([.top, .leading, .trailing])
+                        RoundedRectangle(cornerRadius: 5, style: .continuous)
+                        .fill(Color.green)
+                            .frame(width: self.accuracy * (UIScreen.screenWidth - 40), height: 7).padding([.top, .leading, .trailing]).animation(.easeInOut(duration: 1))
+                    }.opacity(self.showGuess ? 1 : 0).animation(.easeInOut)
 
-                Spacer()
-                }.padding(40)
-            VStack {
-                KeyboardView()
-//                    .opacity(showKeyboard ? 1 : 0).animation(.easeInOut)
+                    Spacer()
+                    }.padding(40)
+
+                LottieView(name: "Confetti", play: self.$showConfetti).opacity(Double(self.showConfetti)).frame(width: UIScreen.screenWidth, height: UIScreen.screenHeight)
+                    .contentShape(ConfettiAnimationShape()).show(!self.showConfetti.boolValue)
             }
-            LottieView(name: "Confetti", play: $showConfetti).opacity(Double(showConfetti)).frame(width: UIScreen.screenWidth, height: UIScreen.screenHeight)
-                .contentShape(ConfettiAnimationShape()).show(!showConfetti.boolValue)
         }
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
+    static let keyboardEntry = KeyboardEntry()
     static var previews: some View {
         ContentView()
     }
